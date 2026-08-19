@@ -1,16 +1,13 @@
-import dotenv from "dotenv";
-dotenv.config();
 
-import app from "./app";
-import { testConnection } from "./config/database";
+import express from "express";
+import cors from "cors";
+import { Router } from "express";
 
-const PORT = process.env.PORT || 3000;
+const server = express();
 
-async function start() {
-  await testConnection();
-  app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
-  });
-}
+server.use(express.json());
+server.use(cors());
 
-start();
+server.use(router);
+
+export { server }

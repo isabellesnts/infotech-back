@@ -1,16 +1,22 @@
-import express, { Application } from "express";
-import cors from "cors";
-import categoriaRoutes from "./routes/categoriaRoutes";
+import { DatabaseModel } from "./model/DataBaseModel.js";
 
-const app: Application = express();
+import { server } from "./server.js";
 
-app.use(cors());
-app.use(express.json());
+import dotenv from "dotenv";
 
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok" });
-});
+dotenv.config();
+const port: number = parseInt(process.env.PORT as string);
+const host: string = process.env.HOST ?? "";
+new DatabaseModel().testeConexao().then((ok) => {
 
-app.use("/api/categorias", categoriaRoutes);
+    if (ok) {
 
-export default app;
+        server.listen(port, () => {
+ 
+            console.info(`Servidor executando no endereço ${host}:${port}`);
+        });
+    } else {
+
+        console.error(`Não foi possível conectar com o banco de dados.`);
+    }
+})
