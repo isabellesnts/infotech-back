@@ -1,0 +1,15 @@
+export default interface ProdutoDTO {
+    id_produto: number;
+    codigo: string;
+    nome: string;
+    descricao: string;
+    preco_unitario: number;
+    quantidade_disponivel: number;
+    quantidade_minima: number;
+    ativo: boolean;
+    data_cadastro: Date;
+    categoria: {
+        id_categoria: number;
+        nome: string;
+    };
+}
