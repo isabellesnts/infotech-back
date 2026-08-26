@@ -1,5 +1,6 @@
 export default interface ProdutoDTO {
     id_produto: number;
+    id_categoria: number;
     codigo: string;
     nome: string;
     descricao: string;
@@ -7,9 +8,5 @@ export default interface ProdutoDTO {
     quantidade_disponivel: number;
     quantidade_minima: number;
     ativo: boolean;
-    data_cadastro: Date;
-    categoria: {
-        id_categoria: number;
-        nome: string;
-    };
+    data_cadastro: string;
 }
