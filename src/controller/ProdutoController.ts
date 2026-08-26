@@ -1,9 +1,7 @@
-import { Request, Response } from "express";
+import  type { Request, Response } from "express";
 import Produto from "../model/Produto.js";
 
 class ProdutoController {
-
-
 
     static async todos(req: Request, res: Response): Promise<Response> {
 
@@ -27,7 +25,7 @@ class ProdutoController {
 
 
 
-    static async um(req: Request, res: Response): Promise<Response> {
+    static async lista(req: Request, res: Response): Promise<Response> {
 
         try {
 
@@ -61,7 +59,7 @@ class ProdutoController {
 
 
 
-    static async criar(req: Request, res: Response): Promise<Response> {
+    static async cadastro(req: Request, res: Response): Promise<Response> {
 
         try {
 

@@ -1,6 +1,5 @@
 import { DatabaseModel } from "./model/DataBaseModel.js";
-
-import { server } from "./server.js";
+import {server} from "./server.js";
 
 import dotenv from "dotenv";
 
