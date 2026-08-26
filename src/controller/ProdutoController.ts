@@ -1,187 +1,144 @@
-import  type { Request, Response } from "express";
+import type { Request, Response } from "express";
 import Produto from "../model/Produto.js";
 
-class ProdutoController {
-
+class ProdutoController extends Produto {
     static async todos(req: Request, res: Response): Promise<Response> {
-
         try {
-
-            const listaProdutos = await Produto.listarProdutos();
-
-            return res.status(200).json(listaProdutos);
-
+            const listaDeProdutos = await Produto.listarProdutos();
+            return res.status(200).json(listaDeProdutos);
         } catch (error) {
-
-            console.error(
-                `Erro ao consultar produtos. ${error}`
-            );
-
-            return res.status(500).json({
-                mensagem: "Não foi possível acessar a lista de produtos."
-            });
+            console.log(`Erro ao acessar listagem de produtos: ${error}`);
+            return res.status(400).json("Erro ao acessar listagem de produtos");
         }
     }
 
-
-
-    static async lista(req: Request, res: Response): Promise<Response> {
-
+    static async um(req: Request, res: Response): Promise<Response> {
         try {
-
-            const id_produto = Number(req.params.id);
-
+            const id_produto = parseInt(req.params.id_produto as string);
             const produto = await Produto.listarProduto(id_produto);
 
-            return res.status(200).json(produto);
-
-        } catch (error) {
-
-            console.error(
-                `Erro ao consultar produto. ${error}`
-            );
-
-            if (
-                error instanceof Error &&
-                error.message.includes("não encontrado")
-            ) {
-
-                return res.status(404).json({
-                    mensagem: error.message
-                });
+            if (produto) {
+                return res.status(200).json(produto);
+            } else {
+                return res.status(404).json("Produto não encontrado");
             }
-
-            return res.status(500).json({
-                mensagem: "Não foi possível consultar o produto."
-            });
+        } catch (error) {
+            console.log(`Erro ao buscar produto: ${error}`);
+            return res.status(400).json("Erro ao buscar produto");
         }
     }
 
-
-
-    static async cadastro(req: Request, res: Response): Promise<Response> {
-
+    static async novo(req: Request, res: Response): Promise<Response> {
         try {
+            const dados = req.body;
+            const erros: string[] = [];
 
-            const dadosRecebidos = req.body;
+            if (!dados.id_categoria || !Number.isInteger(Number(dados.id_categoria))) {
+                erros.push("id_categoria é obrigatório e deve ser um número inteiro");
+            }
+            if (!dados.codigo || String(dados.codigo).trim() === "") {
+                erros.push("codigo é obrigatório");
+            }
+            if (!dados.nome || String(dados.nome).trim() === "") {
+                erros.push("nome é obrigatório");
+            }
+            if (dados.preco_unitario === undefined || Number(dados.preco_unitario) < 0) {
+                erros.push("preco_unitario é obrigatório e não pode ser negativo");
+            }
+            if (dados.quantidade_disponivel !== undefined && Number(dados.quantidade_disponivel) < 0) {
+                erros.push("quantidade_disponivel não pode ser negativa");
+            }
+            if (dados.quantidade_minima !== undefined && Number(dados.quantidade_minima) < 0) {
+                erros.push("quantidade_minima não pode ser negativa");
+            }
 
-            const produto = new Produto(
-                dadosRecebidos.id_categoria,
-                dadosRecebidos.codigo,
-                dadosRecebidos.nome,
-                dadosRecebidos.descricao,
-                dadosRecebidos.preco_unitario,
-                dadosRecebidos.quantidade_disponivel,
-                dadosRecebidos.quantidade_minima,
-                dadosRecebidos.ativo
+            if (erros.length > 0) {
+                return res.status(400).json(erros);
+            }
+
+            const novoProduto = new Produto(
+                dados.id_categoria,
+                dados.codigo,
+                dados.nome,
+                dados.descricao ?? "",
+                dados.preco_unitario,
+                dados.quantidade_disponivel ?? 0,
+                dados.quantidade_minima ?? 0
             );
 
-            await Produto.cadastrarProduto(produto);
+            const resultado = await Produto.cadastrarProduto(novoProduto);
 
-            return res.status(201).json({
-                mensagem: "Produto cadastrado com sucesso."
-            });
-
+            if (resultado) {
+                return res.status(200).json("Produto cadastrado com sucesso");
+            } else {
+                return res.status(400).json("Erro ao cadastrar produto");
+            }
         } catch (error) {
-
-            console.error(
-                `Erro ao cadastrar produto. ${error}`
-            );
-
-            return res.status(500).json({
-                mensagem: "Não foi possível cadastrar o produto."
-            });
+            console.log(`Erro ao cadastrar produto: ${error}`);
+            return res.status(400).json("Erro ao cadastrar produto");
         }
     }
 
-
-
-    static async atualizar(
-        req: Request,
-        res: Response
-    ): Promise<Response> {
-
+    static async remover(req: Request, res: Response): Promise<Response> {
         try {
+            const id_produto = parseInt(req.params.id_produto as string);
+            const resultado = await Produto.removerProduto(id_produto);
 
-            const id_produto = Number(req.params.id);
-
-            const dadosRecebidos = req.body;
-
-            await Produto.atualizarProduto(
-                id_produto,
-                dadosRecebidos.id_categoria,
-                dadosRecebidos.codigo,
-                dadosRecebidos.nome,
-                dadosRecebidos.descricao,
-                dadosRecebidos.preco_unitario,
-                dadosRecebidos.quantidade_disponivel,
-                dadosRecebidos.quantidade_minima,
-                dadosRecebidos.ativo
-            );
-
-            return res.status(200).json({
-                mensagem: "Produto atualizado com sucesso."
-            });
-
-        } catch (error) {
-
-            console.error(
-                `Erro ao atualizar produto. ${error}`
-            );
-
-            if (
-                error instanceof Error &&
-                error.message.includes("não encontrado")
-            ) {
-
-                return res.status(404).json({
-                    mensagem: error.message
-                });
+            if (resultado) {
+                return res.status(200).json("Produto removido com sucesso");
+            } else {
+                return res.status(400).json("Erro ao remover produto");
             }
-
-            return res.status(500).json({
-                mensagem: "Não foi possível atualizar o produto."
-            });
+        } catch (error) {
+            console.log(`Erro ao remover produto: ${error}`);
+            return res.status(400).json("Erro ao remover produto");
         }
     }
 
-
-
-
-    static async deletar(
-        req: Request,
-        res: Response
-    ): Promise<Response> {
-
+    static async atualizar(req: Request, res: Response): Promise<Response> {
         try {
+            const dados = req.body;
+            const erros: string[] = [];
 
-            const id_produto = Number(req.params.id);
-
-            await Produto.removerProduto(id_produto);
-
-            return res.status(200).json({
-                mensagem: "Produto removido com sucesso."
-            });
-
-        } catch (error) {
-
-            console.error(
-                `Erro ao remover produto. ${error}`
-            );
-
-            if (
-                error instanceof Error &&
-                error.message.includes("não encontrado")
-            ) {
-
-                return res.status(404).json({
-                    mensagem: error.message
-                });
+            if (!dados.id_categoria || !Number.isInteger(Number(dados.id_categoria))) {
+                erros.push("id_categoria é obrigatório e deve ser um número inteiro");
+            }
+            if (!dados.codigo || String(dados.codigo).trim() === "") {
+                erros.push("codigo é obrigatório");
+            }
+            if (!dados.nome || String(dados.nome).trim() === "") {
+                erros.push("nome é obrigatório");
+            }
+            if (dados.preco_unitario === undefined || Number(dados.preco_unitario) < 0) {
+                erros.push("preco_unitario é obrigatório e não pode ser negativo");
             }
 
-            return res.status(500).json({
-                mensagem: "Não foi possível remover o produto."
-            });
+            if (erros.length > 0) {
+                return res.status(400).json(erros);
+            }
+
+            const produtoAtualizado = new Produto(
+                dados.id_categoria,
+                dados.codigo,
+                dados.nome,
+                dados.descricao ?? "",
+                dados.preco_unitario,
+                dados.quantidade_disponivel ?? 0,
+                dados.quantidade_minima ?? 0
+            );
+
+            produtoAtualizado.setIdProduto(parseInt(req.params.id_produto as string));
+
+            const resultado = await Produto.atualizarProduto(produtoAtualizado);
+
+            if (resultado) {
+                return res.status(200).json("Produto atualizado com sucesso");
+            } else {
+                return res.status(400).json("Erro ao atualizar produto");
+            }
+        } catch (error) {
+            console.log(`Erro ao atualizar produto: ${error}`);
+            return res.status(400).json("Erro ao atualizar produto");
         }
     }
 }
