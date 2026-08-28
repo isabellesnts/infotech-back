@@ -1,16 +1,17 @@
-/*import jwt from 'jsonwebtoken';
+// imports
+import jwt from 'jsonwebtoken';
 import { type Request, type Response, type NextFunction } from 'express';
-import { DatabaseModel } from '../model/DataBaseModel';
+import { DatabaseModel } from '../model/DataBaseModel.js';
 
 // palavra secreta
-const SECRET = 'infotech';
+const SECRET = 'bananinha';
 // pool de conexão ao banco de dados
 const database = new DatabaseModel().pool;
 
 /**
  * Interface para representar um Payload do JWT
  */
-/*interface JwtPayload {
+interface JwtPayload {
     id: number;
     nome: string;
     email: string;
@@ -21,7 +22,7 @@ const database = new DatabaseModel().pool;
 /**
  * Gera e trata um token de autenticação para o sistema
  */
-/*export class Auth {
+export class Auth {
 
     /**
      * Valida as credenciais do usuário no banco de dados
@@ -29,7 +30,7 @@ const database = new DatabaseModel().pool;
      * @param res Resposta enviada a quem requisitou o login
      * @returns Token de autenticação caso o usuário seja válido, mensagem de login não autorizado caso negativo
      */
-    /*static async validacaoUsuario(req: Request, res: Response): Promise<any> {
+    static async validacaoUsuario(req: Request, res: Response): Promise<any> {
         // recupera informações do corpo da requisição
         const { email, senha } = req.body;
 
@@ -68,14 +69,14 @@ const database = new DatabaseModel().pool;
      * @param role Role do usuário no banco de dados
      * @returns Token de autenticação do usuário
      */
-    /*static generateToken(id: number, nome: string, email: string, role: string) {
+    static generateToken(id: number, nome: string, email: string, role: string) {
         return jwt.sign({ id, nome, email, role }, SECRET, { expiresIn: '1h' });
     }
 
     /**
      * Verifica o token do usuário para saber se ele é válido
      */
-    /*static verifyToken(req: Request, res: Response, next: NextFunction) {
+    static verifyToken(req: Request, res: Response, next: NextFunction) {
         const token = req.headers['x-access-token'] as string;
 
         if (!token) {
@@ -117,4 +118,3 @@ const database = new DatabaseModel().pool;
         });
     }
 }
-*/
