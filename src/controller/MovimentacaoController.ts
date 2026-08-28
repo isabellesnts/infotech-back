@@ -1,130 +1,68 @@
-import type { Request, Response } from "express";
 import Movimentacao from "../model/Movimentacao.js";
+import { type Request, type Response } from "express";
+import type MovimentacaoDTO from "../dto/MovimentacaoDTO.js";
 
-class MovimentacaoController {
+class MovimentacaoController extends Movimentacao {
 
-    static async listarMovimentacoes(req: Request, res: Response): Promise<Response> {
-
+    static async todos(req: Request, res: Response): Promise<Response> {
         try {
+            const listaDeMovimentacoes = await Movimentacao.listarMovimentacoes();
 
-            const movimentacoes = await Movimentacao.listarMovimentacoes();
-
-            if (movimentacoes === null) {
-                return res.status(500).json({
-                    mensagem: "Erro ao listar movimentações."
-                });
-            }
-
-            return res.status(200).json(movimentacoes);
-
+            return res.status(200).json(listaDeMovimentacoes);
         } catch (error) {
+            console.log(`Erro ao acessar listagem de movimentações: ${error}`);
 
-            return res.status(500).json({
-                mensagem: "Erro interno do servidor.",
-                erro: error
-            });
+            return res.status(400).json("Erro ao acessar listagem de movimentações");
         }
     }
 
-    static async listarMovimentacao(req: Request, res: Response): Promise<Response> {
-
+    static async um(req: Request, res: Response): Promise<Response> {
         try {
+            const id_movimentacao = parseInt(req.params.id_movimentacao as string);
 
-            const id_movimentacao = Number(req.params.id_movimentacao);
+            const movimentacao = await Movimentacao.listarMovimentacao(id_movimentacao);
 
-            if (isNaN(id_movimentacao)) {
-                return res.status(400).json({
-                    mensagem: "ID da movimentação inválido."
-                });
+            if (movimentacao) {
+                return res.status(200).json(movimentacao);
+            } else {
+                return res.status(404).json("Movimentação não encontrada");
             }
-
-            const movimentacao = await Movimentacao.listarMovimentacao(
-                id_movimentacao
-            );
-
-            if (movimentacao === null) {
-                return res.status(404).json({
-                    mensagem: "Movimentação não encontrada."
-                });
-            }
-
-            return res.status(200).json(movimentacao);
-
         } catch (error) {
+            console.log(`Erro ao buscar movimentação: ${error}`);
 
-            return res.status(500).json({
-                mensagem: "Erro interno do servidor.",
-                erro: error
-            });
+            return res.status(400).json("Erro ao buscar movimentação");
         }
     }
 
-    static async cadastrarMovimentacao(req: Request, res: Response): Promise<Response> {
-
+    static async novo(req: Request, res: Response): Promise<Response> {
         try {
-
-            const {
-                id_produto,
-                tipo,
-                motivo,
-                quantidade,
-                preco_unitario_praticado,
-                valor_total,
-                observacao,
-                id_movimentacao_origem
-            } = req.body;
-
-            if (
-                id_produto === undefined ||
-                !tipo ||
-                !motivo ||
-                quantidade === undefined ||
-                !observacao
-            ) {
-                return res.status(400).json({
-                    mensagem: "Preencha todos os campos obrigatórios."
-                });
-            }
+            const dadosRecebidos: MovimentacaoDTO = req.body;
 
             const movimentacao = new Movimentacao(
-                Number(id_produto),
-                tipo,
-                motivo,
-                Number(quantidade),
-                observacao,
-                preco_unitario_praticado !== undefined
-                    ? Number(preco_unitario_praticado)
-                    : undefined,
-                valor_total !== undefined
-                    ? Number(valor_total)
-                    : undefined,
-                id_movimentacao_origem !== undefined
-                    ? Number(id_movimentacao_origem)
-                    : undefined
+                dadosRecebidos.produto.id_produto,
+                dadosRecebidos.tipo,
+                dadosRecebidos.motivo,
+                dadosRecebidos.quantidade,
+                dadosRecebidos.observacao,
+                dadosRecebidos.preco_unitario_praticado,
+                dadosRecebidos.valor_total,
+                dadosRecebidos.id_movimentacao_origem
             );
 
-            const resultado = await Movimentacao.cadastrarMovimentacao(
-                movimentacao
-            );
+            const resultado = await Movimentacao.cadastrarMovimentacao(movimentacao);
 
-            if (!resultado) {
-                return res.status(400).json({
-                    mensagem: "Não foi possível cadastrar a movimentação."
-                });
+            if (resultado) {
+                return res.status(200).json("Movimentação cadastrada com sucesso");
+            } else {
+                return res.status(400).json("Erro ao cadastrar movimentação");
             }
-
-            return res.status(201).json({
-                mensagem: "Movimentação cadastrada com sucesso."
-            });
-
         } catch (error) {
+            console.log(`Erro ao cadastrar movimentação: ${error}`);
 
-            return res.status(500).json({
-                mensagem: "Erro interno do servidor.",
-                erro: error
-            });
+            return res.status(400).json("Erro ao cadastrar movimentação");
         }
     }
+
 }
 
 export default MovimentacaoController;
