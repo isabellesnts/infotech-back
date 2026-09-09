@@ -114,24 +114,24 @@ class Movimentacao {
         try {
 
             const querySelectMovimentacao = `
-                SELECT
-                    m.id_movimentacao,
-                    m.id_movimentacao_origem,
-                    m.tipo,
-                    m.motivo,
-                    m.quantidade,
-                    m.preco_unitario_praticado,
-                    m.valor_total,
-                    m.observacao,
-                    m.data_movimentacao,
-                    p.id_produto,
-                    p.codigo,
-                    p.nome
-                FROM movimentacao m
-                INNER JOIN produto p
-                    ON p.id_produto = m.id_produto
-                ORDER BY m.data_movimentacao DESC;
-            `;
+            SELECT
+                m.id_movimentacao,
+                m.id_movimentacao_origem,
+                m.tipo,
+                m.motivo,
+                m.quantidade,
+                m.preco_unitario_praticado,
+                m.valor_total,
+                m.observacao,
+                m.data_movimentacao,
+                p.id_produto,
+                p.codigo,
+                p.nome
+            FROM movimentacao m
+            INNER JOIN produto p
+                ON p.id_produto = m.id_produto
+            ORDER BY m.data_movimentacao DESC;
+        `;
 
             const respostaBD = await database.query(querySelectMovimentacao);
 
@@ -143,7 +143,7 @@ class Movimentacao {
                     tipo: movimentacao.tipo,
                     motivo: movimentacao.motivo,
                     quantidade: movimentacao.quantidade,
-                    preco_unitario_praticado: movimentacao.preco_unitario_praticado,
+                    preco_unitario: movimentacao.preco_unitario_praticado,
                     valor_total: movimentacao.valor_total,
                     observacao: movimentacao.observacao,
                     data_movimentacao: movimentacao.data_movimentacao,
@@ -154,6 +154,7 @@ class Movimentacao {
                         nome: movimentacao.nome
                     }
                 };
+
 
                 listaDeMovimentacoes.push(movimentacaoDTO);
             });
@@ -211,7 +212,7 @@ class Movimentacao {
                 tipo: movimentacao.tipo,
                 motivo: movimentacao.motivo,
                 quantidade: movimentacao.quantidade,
-                preco_unitario_praticado: movimentacao.preco_unitario_praticado,
+                preco_unitario: movimentacao.preco_unitario_praticado, 
                 valor_total: movimentacao.valor_total,
                 observacao: movimentacao.observacao,
                 data_movimentacao: movimentacao.data_movimentacao,
@@ -221,25 +222,26 @@ class Movimentacao {
                     codigo: movimentacao.codigo,
                     nome: movimentacao.nome
                 }
-            };
+            
+        };
 
-            return movimentacaoDTO;
+        return movimentacaoDTO;
 
-        } catch (error) {
+    } catch(error) {
 
-            console.error(`Erro ao realizar consulta: ${error}`);
+        console.error(`Erro ao realizar consulta: ${error}`);
 
-            return null;
-        }
+        return null;
     }
+}
 
     static async cadastrarMovimentacao(
-        movimentacao: Movimentacao
-    ): Promise<boolean> {
+    movimentacao: Movimentacao
+): Promise < boolean > {
 
-        try {
+    try {
 
-            const queryInsertMovimentacao = `
+        const queryInsertMovimentacao = `
                 INSERT INTO movimentacao (
                     id_produto,
                     id_movimentacao_origem,
@@ -254,39 +256,39 @@ class Movimentacao {
                 RETURNING id_movimentacao;
             `;
 
-            const valores = [
-                movimentacao.getIdProduto(),
-                movimentacao.getIdMovimentacaoOrigem(),
-                movimentacao.getTipo().toUpperCase(),
-                movimentacao.getMotivo().toUpperCase(),
-                movimentacao.getQuantidade(),
-                movimentacao.getPrecoUnitarioPraticado(),
-                movimentacao.getValorTotal(),
-                movimentacao.getObservacao()
-            ];
+        const valores = [
+            movimentacao.getIdProduto(),
+            movimentacao.getIdMovimentacaoOrigem(),
+            movimentacao.getTipo().toUpperCase(),
+            movimentacao.getMotivo().toUpperCase(),
+            movimentacao.getQuantidade(),
+            movimentacao.getPrecoUnitarioPraticado(),
+            movimentacao.getValorTotal(),
+            movimentacao.getObservacao()
+        ];
 
-            const resultado = await database.query(
-                queryInsertMovimentacao,
-                valores
-            );
+        const resultado = await database.query(
+            queryInsertMovimentacao,
+            valores
+        );
 
-            if (resultado.rows.length > 0) {
+        if(resultado.rows.length > 0) {
 
-                console.log(
-                    `Movimentação cadastrada com sucesso. ID: ${resultado.rows[0].id_movimentacao}`
-                );
+    console.log(
+        `Movimentação cadastrada com sucesso. ID: ${resultado.rows[0].id_movimentacao}`
+    );
 
-                return true;
-            }
+    return true;
+}
 
-            return false;
+return false;
 
         } catch (error) {
 
-            console.error(`Erro ao cadastrar movimentação: ${error}`);
+    console.error(`Erro ao cadastrar movimentação: ${error}`);
 
-            return false;
-        }
+    return false;
+}
     }
 }
 

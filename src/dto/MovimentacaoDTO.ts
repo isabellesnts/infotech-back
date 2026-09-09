@@ -4,7 +4,7 @@
     tipo: string;
     motivo: string;
     quantidade: number;
-    preco_unitario_praticado?: number;
+    preco_unitario?: number;
     valor_total?: number;
     observacao: string;
     data_movimentacao?: Date;

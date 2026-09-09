@@ -44,7 +44,7 @@ class MovimentacaoController extends Movimentacao {
                 dadosRecebidos.motivo,
                 dadosRecebidos.quantidade,
                 dadosRecebidos.observacao,
-                dadosRecebidos.preco_unitario_praticado,
+                dadosRecebidos.preco_unitario,
                 dadosRecebidos.valor_total,
                 dadosRecebidos.id_movimentacao_origem
             );

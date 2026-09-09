@@ -14,7 +14,7 @@ class ProdutoController extends Produto {
 
     static async um(req: Request, res: Response): Promise<Response> {
         try {
-            const id_produto = parseInt(req.params.id_produto as string);
+            const id_produto = Number(req.params.id_produto);
             const produto = await Produto.listarProduto(id_produto);
 
             if (produto) {

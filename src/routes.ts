@@ -7,10 +7,12 @@ const router = Router();
 
 
 router.get("/produtos", ProdutoController.todos);
-router.get("/produtos/:id", ProdutoController.um);
 router.post("/produtos", ProdutoController.novo);
-router.put("/produtos/:id", ProdutoController.atualizar);
-router.delete("/produtos/:id", ProdutoController.remover);
+router.get("/produtos/:id_produto", ProdutoController.um);
+router.put("/produtos/:id_produto", ProdutoController.atualizar);
+router.delete("/produtos/:id_produto", ProdutoController.remover);
+
+
 
 router.get("/movimentacoes", MovimentacaoController.todos);
 router.get("/movimentacoes/:id_movimentacao", MovimentacaoController.um);
