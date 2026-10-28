@@ -6,7 +6,6 @@ import CategoriaController from "./controller/CategoriaController.js";
 import RelatorioController from "./controller/RelatorioController.js";
 const router = Router();
 
-
 router.get("/produtos", Auth.verifyToken, ProdutoController.todos);
 router.get("/produtos/:id", Auth.verifyToken, ProdutoController.um);
 router.post("/produtos", Auth.verifyToken, ProdutoController.novo);

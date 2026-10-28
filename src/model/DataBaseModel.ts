@@ -6,14 +6,19 @@ export class DatabaseModel {
   private _pool: pg.Pool;
 
   constructor() {
+    const localUser = process.env.DB_USER ?? 'postgres';
+    const localHost = process.env.DB_HOST ?? 'localhost';
+    const localDatabase = process.env.DB_NAME ?? 'postgres';
+    const localPassword = process.env.DB_PASSWORD ?? 'admin';
+    const localPort = Number(process.env.DB_PORT) || 5432;
+
     if (!process.env.DATABASE_URL) {
-      // Local/dev por variáveis separadas
       this._pool = new pg.Pool({
-        user: process.env.DB_USER,
-        host: process.env.DB_HOST,
-        database: process.env.DB_NAME,
-        password: process.env.DB_PASSWORD,
-        port: Number(process.env.DB_PORT) || 5432,
+        user: localUser,
+        host: localHost,
+        database: localDatabase,
+        password: localPassword,
+        port: localPort,
         ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined,
         max: 10,
         idleTimeoutMillis: 10_000,
@@ -21,28 +26,39 @@ export class DatabaseModel {
       return;
     }
 
-    // PRODUÇÃO: desmonta a URL e passa os campos + SSL no-verify
-    const u = new URL(process.env.DATABASE_URL);
-    const user = decodeURIComponent(u.username);
-    const password = decodeURIComponent(u.password);
-    const host = u.hostname;
-    const port = Number(u.port || 5432);
-    const database = u.pathname.replace(/^\//, "");
+    try {
+      const u = new URL(process.env.DATABASE_URL);
+      const user = decodeURIComponent(u.username || localUser);
+      const password = decodeURIComponent(u.password || localPassword);
+      const host = u.hostname || localHost;
+      const port = Number(u.port || localPort);
+      const database = u.pathname.replace(/^\//, "") || localDatabase;
 
-    // logs mínimos (não expõem segredos)
-    console.log("[DB] Host:", host, "Port:", port, "Pooler?", host.includes("pooler.supabase.com"));
+      console.log("[DB] Host:", host, "Port:", port, "Pooler?", host.includes("pooler.supabase.com"));
 
-    this._pool = new pg.Pool({
-      host,
-      port,
-      database,
-      user,
-      password,
-      // 👇 força ignorar a cadeia (continua TLS criptografado)
-      ssl: { rejectUnauthorized: false },
-      max: 10,
-      idleTimeoutMillis: 10_000,
-    });
+      this._pool = new pg.Pool({
+        host,
+        port,
+        database,
+        user,
+        password,
+        ssl: { rejectUnauthorized: false },
+        max: 10,
+        idleTimeoutMillis: 10_000,
+      });
+    } catch (error) {
+      console.log('DATABASE_URL inválida; usando valores locais seguros para evitar queda do servidor.', error);
+      this._pool = new pg.Pool({
+        user: localUser,
+        host: localHost,
+        database: localDatabase,
+        password: localPassword,
+        port: localPort,
+        ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined,
+        max: 10,
+        idleTimeoutMillis: 10_000,
+      });
+    }
   }
 
   public async testeConexao(): Promise<boolean> {

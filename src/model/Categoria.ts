@@ -57,7 +57,7 @@ class Categoria {
         } catch (error) {
 
             console.log(`Erro ao acessar o modelo: ${error}`);
-            return null;
+            return [];
         }
     }
 

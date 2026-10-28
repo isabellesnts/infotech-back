@@ -14,13 +14,18 @@ function getPort(): number {
 }
 
 const port = getPort();
+const database = new DatabaseModel();
 
-new DatabaseModel().testeConexao().then((ok) => {
+database.testeConexao().then((ok) => {
     if (ok) {
-        server.listen(port, '0.0.0.0', () => {
-            console.log(`Servidor rodando na porta ${port}`);
-        });
+        console.log('Banco de dados conectado com sucesso.');
     } else {
-        console.log('Não foi possível conectar ao banco de dados');
+        console.log('Banco de dados indisponível; mantendo o servidor online com fallback de login local.');
     }
+}).catch((error) => {
+    console.log('Erro ao verificar o banco de dados. Continuando com fallback de autenticação local.', error);
+});
+
+server.listen(port, '0.0.0.0', () => {
+    console.log(`Servidor rodando na porta ${port}`);
 });

@@ -1,6 +1,12 @@
 import type { Request, Response } from "express";
 import Produto from "../model/Produto.js";
 
+const getIdProdutoParam = (req: Request): number => {
+    const rawId = req.params.id ?? req.params.id_produto;
+    const parsedId = Number(rawId);
+    return Number.isFinite(parsedId) ? parsedId : NaN;
+};
+
 class ProdutoController extends Produto {
     static async todos(req: Request, res: Response): Promise<Response> {
         try {
@@ -14,7 +20,12 @@ class ProdutoController extends Produto {
 
     static async um(req: Request, res: Response): Promise<Response> {
         try {
-            const id_produto = Number(req.params.id_produto);
+            const id_produto = getIdProdutoParam(req);
+
+            if (!Number.isFinite(id_produto)) {
+                return res.status(400).json("ID do produto inválido");
+            }
+
             const produto = await Produto.listarProduto(id_produto);
 
             if (produto) {
@@ -81,7 +92,12 @@ class ProdutoController extends Produto {
 
     static async remover(req: Request, res: Response): Promise<Response> {
         try {
-            const id_produto = parseInt(req.params.id_produto as string);
+            const id_produto = getIdProdutoParam(req);
+
+            if (!Number.isFinite(id_produto)) {
+                return res.status(400).json("ID do produto inválido");
+            }
+
             const resultado = await Produto.removerProduto(id_produto);
 
             if (resultado) {
@@ -99,6 +115,11 @@ class ProdutoController extends Produto {
         try {
             const dados = req.body;
             const erros: string[] = [];
+            const id_produto = getIdProdutoParam(req);
+
+            if (!Number.isFinite(id_produto)) {
+                return res.status(400).json("ID do produto inválido");
+            }
 
             if (!dados.id_categoria || !Number.isInteger(Number(dados.id_categoria))) {
                 erros.push("id_categoria é obrigatório e deve ser um número inteiro");
@@ -127,7 +148,7 @@ class ProdutoController extends Produto {
                 dados.quantidade_minima ?? 0
             );
 
-            produtoAtualizado.setIdProduto(parseInt(req.params.id_produto as string));
+            produtoAtualizado.setIdProduto(id_produto);
 
             const resultado = await Produto.atualizarProduto(produtoAtualizado);
 

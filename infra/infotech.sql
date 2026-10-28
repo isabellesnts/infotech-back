@@ -7,7 +7,22 @@ DROP VIEW IF EXISTS vw_produtos_reposicao;
 DROP TABLE IF EXISTS movimentacao;
 DROP TABLE IF EXISTS produto;
 DROP TABLE IF EXISTS categoria;
+DROP TABLE IF EXISTS usuarios;
 
+CREATE TABLE usuarios (
+    id_usuario INTEGER GENERATED ALWAYS AS IDENTITY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    role VARCHAR(30) NOT NULL DEFAULT 'admin',
+
+    CONSTRAINT pk_usuarios PRIMARY KEY (id_usuario),
+    CONSTRAINT uq_usuarios_email UNIQUE (email)
+);
+
+INSERT INTO usuarios (nome, email, senha, role)
+VALUES ('Administrador', 'admin@email.com', 'admin123', 'admin')
+ON CONFLICT (email) DO NOTHING;
 
 CREATE TABLE categoria (
     id_categoria INTEGER GENERATED ALWAYS AS IDENTITY,
